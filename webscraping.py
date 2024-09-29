@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup as bs
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import requests 
@@ -30,6 +31,7 @@ modal_name = []
 modal_rating = []
 modal_img = []
 
+
 #collects link of all gpu in flipkart from all pages
 old = 0;
 new = 10;
@@ -43,17 +45,16 @@ while(old!=new):
     for link in links:
         link_list.append(main_url+link.get('href'))
     new = len(link_list)  
-    print(old," ",new)
     p_count = p_count+1
 
 #collects product images from the above collected link
-for img in link_list:
+for img in tqdm(link_list):
     page = ''
     while page == '':
         # this block executes until the server blocks the user and then waits for 5 second to continue with the loop
         try:
-            page = main_url+img
-            next_page = requests.get(page)
+            page = img
+            next_page = requests.get(page, headers=headers)
             break
         except:
             print("Connection refused by the server..")
