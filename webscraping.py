@@ -22,7 +22,7 @@ headers = {
         "Cache-Control": "max-age=0",
     }
 
-url = "https://www.flipkart.com/gaming/gaming-graphic-cards/pr?sid=4rr%2Ctin%2C6zn&q=nvidia+rtx+graphics+card&otracker=categorytree&p%5B%5D=facets.brand%255B%255D%3DnVIDIA&p%5B%5D=facets.brand%255B%255D%3DASUS&p%5B%5D=facets.brand%255B%255D%3DGIGABYTE&p%5B%5D=facets.brand%255B%255D%3DZOTAC&p%5B%5D=facets.brand%255B%255D%3DMSI&p%5B%5D=facets.brand%255B%255D%3DGeforce&p%5B%5D=facets.brand%255B%255D%3Dgigabtye"
+url = "https://www.flipkart.com/search?q=graphics+card&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off&p%5B%5D=facets.price_range.from%3DMin&p%5B%5D=facets.price_range.to%3DMax"
 main_url = 'https://www.flipkart.com'
 
 
@@ -40,7 +40,18 @@ def links_collector(url,main_url):
     p_count = 1;
     while(old!=new):
         old = new
-        response = requests.get(url+'&page='+str(p_count), headers=headers)
+        response = ''
+        while response == '':
+            try:
+                response = requests.get(url+'&page='+str(p_count), headers=headers)
+                break
+            except:
+                print("Connection refused by the server..")
+                print("Let me sleep for 5 seconds")
+                print("ZZzzzz...")
+                time.sleep(5)
+                print("Was a nice sleep, now let me continue...")
+                continue
         data = bs(response.content,'html.parser')
         formatted = bs(data.prettify(),'html.parser')
         links = formatted.find_all('a',{"class": "wjcEIp"})
@@ -48,7 +59,6 @@ def links_collector(url,main_url):
             link_list.append(main_url+link.get('href'))
         new = len(link_list)  
         p_count = p_count+1
-    return link_list
 
 
 #collects product images from the above collected link
@@ -72,7 +82,19 @@ def data_collector(link_list):
         format_page = bs(clean_page.prettify(),'html.parser')
         images = format_page.find('img',{"class": "DByuf4 IZexXJ jLEJ7H"})
         price = format_page.find('div',{"class": "Nx9bqj CxhGGd"})
-        modal_price.append(price)
-        modal_img.append(images.get('src'))
-
-
+        rating = format_page.find('div',{"class": "ipqd2A"})
+        name = format_page.find('span',{"class": "VU-ZEz"})
+        if(int(price.get_text().strip()[1:].replace(",","")) < 10000):
+            modal_name.append(None)
+            modal_price.append(None)
+            modal_img.append(None)
+            modal_rating.append(None)
+        else:
+            if(rating == None):
+                modal_rating.append("No rating available")
+            else:
+                modal_rating.append(rating.get_text().split())
+                
+            modal_name.append(images.get('alt'))
+            modal_price.append(int(price.get_text().strip()[1:].replace(",","")))
+            modal_img.append(images.get('src'))
