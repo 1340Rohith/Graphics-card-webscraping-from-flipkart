@@ -7,6 +7,7 @@ import re
 import certifi
 import urllib3
 import time
+import csv
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
@@ -31,6 +32,9 @@ modal_price = []
 modal_name = []
 modal_rating = []
 modal_img = []
+modal_rating_count = []
+modal_review_count = []
+primary_data = pd.read_csv(r"result.csv")
 
 
 #collects link of all gpu in flipkart from all pages
@@ -84,17 +88,35 @@ def data_collector(link_list):
         price = format_page.find('div',{"class": "Nx9bqj CxhGGd"})
         rating = format_page.find('div',{"class": "ipqd2A"})
         name = format_page.find('span',{"class": "VU-ZEz"})
-        if(int(price.get_text().strip()[1:].replace(",","")) < 10000):
-            modal_name.append(None)
-            modal_price.append(None)
-            modal_img.append(None)
-            modal_rating.append(None)
+        r_count = format_page.find('span',{"class": "Wphh3N"})
+        if(price == None or int(price.get_text().strip()[1:].replace(",","")) < 10000):
+            modal_name.append("NULL")
+            modal_price.append("NULL")
+            modal_img.append("NULL")
+            modal_rating.append("NULL")
+            modal_rating_count.append("NULL")
+            modal_review_count.append("NULL")
         else:
             if(rating == None):
-                modal_rating.append("No rating available")
+                modal_rating.append("No rating")
+                modal_rating_count.append("No rating ")
+                modal_review_count.append("No rating ")
             else:
                 modal_rating.append(rating.get_text().split())
+                modal_rating_count.append(r_count.get_text().split()[0])
+                modal_review_count.append(r_count.get_text().split()[3])
                 
             modal_name.append(images.get('alt'))
             modal_price.append(int(price.get_text().strip()[1:].replace(",","")))
             modal_img.append(images.get('src'))
+
+
+links_collector(url,main_url)
+data_collector(link_list)
+
+
+
+df = pd.DataFrame(data={"modal_name": modal_name, "modal_price": modal_price,"modal_rating": modal_rating, "modal_img": modal_img,"modal_rating_count": modal_rating_count, "modal_review_count": modal_review_count})
+length = len(primary_data)
+pd.concat([primary_data,df],ignore_index=True)
+df.iloc[length:].to_csv('result.csv', mode='a', header=False)
