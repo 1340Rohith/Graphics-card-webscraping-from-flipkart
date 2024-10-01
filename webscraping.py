@@ -34,7 +34,8 @@ modal_rating = []
 modal_img = []
 modal_rating_count = []
 modal_review_count = []
-primary_data = pd.read_csv(r"result.csv")
+collection_time = []
+primary_data = pd.read_csv("result.csv")
 
 
 #collects link of all gpu in flipkart from all pages
@@ -96,6 +97,7 @@ def data_collector(link_list):
             modal_rating.append("NULL")
             modal_rating_count.append("NULL")
             modal_review_count.append("NULL")
+            collection_time.append('/'.join(time.ctime(time.time()).split()[1:]))
         else:
             if(rating == None):
                 modal_rating.append("No rating")
@@ -109,14 +111,15 @@ def data_collector(link_list):
             modal_name.append(images.get('alt'))
             modal_price.append(int(price.get_text().strip()[1:].replace(",","")))
             modal_img.append(images.get('src'))
+            collection_time.append('/'.join(time.ctime(time.time()).split()[1:]))
+
 
 
 links_collector(url,main_url)
 data_collector(link_list)
 
 
-
-df = pd.DataFrame(data={"modal_name": modal_name, "modal_price": modal_price,"modal_rating": modal_rating, "modal_img": modal_img,"modal_rating_count": modal_rating_count, "modal_review_count": modal_review_count})
+df = pd.DataFrame(data={"modal_name": modal_name, "modal_price": modal_price,"modal_rating": modal_rating, "modal_img": modal_img,"modal_rating_count": modal_rating_count, "modal_review_count": modal_review_count,"time":collection_time})
 length = len(primary_data)
-pd.concat([primary_data,df],ignore_index=True)
-df.iloc[length:].to_csv('result.csv', mode='a', header=False)
+primary_data = pd.concat([primary_data,df],ignore_index=True)
+primary_data.iloc[length:].to_csv('result.csv', mode='a', header=False,index=False)
