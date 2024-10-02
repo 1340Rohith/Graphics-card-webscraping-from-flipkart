@@ -119,7 +119,7 @@ links_collector(url,main_url)
 data_collector(link_list)
 
 
-df = pd.DataFrame(data={"modal_name": modal_name, "modal_price": modal_price,"modal_rating": modal_rating, "modal_img": modal_img,"modal_rating_count": modal_rating_count, "modal_review_count": modal_review_count,"time":collection_time})
+df = pd.DataFrame(data={"modal_name": modal_name, "modal_price": modal_price,"modal_rating": modal_rating, "modal_img": modal_img,"modal_rating_count": modal_rating_count, "modal_review_count": modal_review_count,"time":collection_time,"link":link_list})
 length = len(primary_data)
 primary_data = pd.concat([primary_data,df],ignore_index=True)
-primary_data.iloc[length:].to_csv('result.csv', mode='a', header=False,index=False)
+primary_data.iloc[length:].to_csv('C:/Users/rohit/Desktop/machine learning/Projects/Webscraping/result.csv', mode='a', header=False,index=False)
